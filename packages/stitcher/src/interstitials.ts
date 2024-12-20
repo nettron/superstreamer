@@ -22,6 +22,10 @@ export function getStaticDateRanges(session: Session, isLive: boolean) {
       clientAttributes["RESUME-OFFSET"] = 0;
     }
 
+    if (interstitial.duration) {
+      clientAttributes["PLAYOUT-LIMIT"] = interstitial.duration;
+    }
+
     const cue: string[] = ["ONCE"];
     if (startDate.equals(session.startTime)) {
       cue.push("PRE");
@@ -41,25 +45,30 @@ export function getStaticDateRanges(session: Session, isLive: boolean) {
 }
 
 export async function getAssets(session: Session, dateTime: DateTime) {
-  const assets: InterstitialAsset[] = [];
-
   const interstitial = session.interstitials.find((interstitial) =>
     interstitial.dateTime.equals(dateTime),
   );
 
-  if (interstitial?.vast) {
-    const nextAssets = await getAssetsFromVast(interstitial.vast);
-    assets.push(...nextAssets);
+  if (!interstitial) {
+    return [];
   }
 
-  if (interstitial?.assets) {
-    assets.push(...interstitial.assets);
+  const assets: InterstitialAsset[] = [];
+
+  for (const chunk of interstitial.chunks) {
+    if (chunk.type === "vast") {
+      const nextAssets = await getAssetsFromVast(chunk.data);
+      assets.push(...nextAssets);
+    }
+    if (chunk.type === "asset") {
+      assets.push(chunk.data);
+    }
   }
 
   return assets;
 }
 
-export function appendInterstitials(
+export function mergeInterstitials(
   source: Interstitial[],
   interstitials: Interstitial[],
 ) {
@@ -70,31 +79,22 @@ export function appendInterstitials(
 
     if (!target) {
       source.push(interstitial);
-      continue;
-    }
-
-    if (interstitial.assets) {
-      if (!target.assets) {
-        target.assets = interstitial.assets;
-      } else {
-        target.assets.push(...interstitial.assets);
-      }
-    }
-
-    if (interstitial.vast) {
-      target.vast = interstitial.vast;
-    }
-
-    if (interstitial.assetList) {
-      target.assetList = interstitial.assetList;
+    } else {
+      // If we found a source for the particular dateTime, we push the
+      // other chunks at the end.
+      target.chunks.push(...interstitial.chunks);
     }
   }
 }
 
 function getAssetListUrl(interstitial: Interstitial, session?: Session) {
-  if (interstitial.assetList) {
-    return interstitial.assetList.url;
+  const assetListChunks = interstitial.chunks.filter(
+    (chunk) => chunk.type === "assetList",
+  );
+  if (assetListChunks.length === 1 && assetListChunks[0]) {
+    return assetListChunks[0].data.url;
   }
+
   return createUrl("out/asset-list.json", {
     dt: interstitial.dateTime.toISO(),
     sid: session?.id,
@@ -102,17 +102,13 @@ function getAssetListUrl(interstitial: Interstitial, session?: Session) {
 }
 
 function getTimelineStyle(interstitial: Interstitial) {
-  if (interstitial.assets) {
-    for (const asset of interstitial.assets) {
-      if (asset.kind === "ad") {
-        return "HIGHLIGHT";
-      }
+  for (const chunk of interstitial.chunks) {
+    if (chunk.type === "asset" && chunk.data.kind === "ad") {
+      return "HIGHLIGHT";
+    }
+    if (chunk.type === "vast") {
+      return "HIGHLIGHT";
     }
   }
-
-  if (interstitial.vast) {
-    return "HIGHLIGHT";
-  }
-
   return "PRIMARY";
 }

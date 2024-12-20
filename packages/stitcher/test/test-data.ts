@@ -81,50 +81,39 @@ export function addFakeInterstitials(session: Session) {
   session.interstitials = [
     {
       dateTime: session.startTime,
-      vast: {
-        url: "https://mock.com/vast.xml",
-      },
+      chunks: [
+        {
+          type: "vast",
+          data: { url: "https://mock.com/vast.xml" },
+        },
+      ],
     },
     {
       dateTime: session.startTime.plus({ seconds: 10 }),
-      vast: {
-        data: "<CDATA>mocked VAST data</CDATA>",
-      },
+      chunks: [
+        {
+          type: "vast",
+          data: { data: "<CDATA>mocked VAST data</CDATA>" },
+        },
+      ],
     },
-    // Manual bumper interstitial
+    // Manual bumper & ad interstitial
     {
       dateTime: session.startTime.plus({ seconds: 30 }),
-      assets: [
+      chunks: [
         {
-          url: "https://mock.com/interstitial/bumper.m3u8",
-          kind: "bumper",
+          type: "asset",
+          data: {
+            url: "https://mock.com/interstitial/bumper.m3u8",
+            kind: "bumper",
+          },
         },
-      ],
-    },
-    // Manual ad interstitial
-    {
-      dateTime: session.startTime.plus({ seconds: 40 }),
-      assets: [
         {
-          url: "https://mock.com/interstitial/ad.m3u8",
-          kind: "ad",
-        },
-      ],
-    },
-    // Multiple manual interstitials
-    {
-      dateTime: session.startTime.plus({ seconds: 100 }),
-      assets: [
-        {
-          url: "https://mock.com/interstitial/master1.m3u8",
-        },
-      ],
-    },
-    {
-      dateTime: session.startTime.plus({ seconds: 100 }),
-      assets: [
-        {
-          url: "https://mock.com/interstitial/master2.m3u8",
+          type: "asset",
+          data: {
+            url: "https://mock.com/interstitial/ad.m3u8",
+            kind: "ad",
+          },
         },
       ],
     },

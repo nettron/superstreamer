@@ -1,9 +1,9 @@
 import { assert } from "shared/assert";
 import { filterMasterPlaylist, formatFilterToQueryParam } from "./filters";
 import {
-  appendInterstitials,
   getAssets,
   getStaticDateRanges,
+  mergeInterstitials,
 } from "./interstitials";
 import { encrypt } from "./lib/crypto";
 import { createUrl, joinUrl, resolveUri } from "./lib/url";
@@ -202,7 +202,7 @@ async function initSessionOnMasterReq(session: Session) {
       session,
       vmap.adBreaks,
     );
-    appendInterstitials(session.interstitials, interstitials);
+    mergeInterstitials(session.interstitials, interstitials);
 
     storeSession = true;
   }
@@ -229,10 +229,14 @@ export function mapAdBreaksToSessionInterstitials(
 
     interstitials.push({
       dateTime,
-      vast: {
-        url: adBreak.vastUrl,
-        data: adBreak.vastData,
-      },
+      // We're going to push a single chunk here and have them merged before
+      // we return the full list of interstitials.
+      chunks: [
+        {
+          type: "vast",
+          data: { url: adBreak.vastUrl, data: adBreak.vastData },
+        },
+      ],
     });
   }
 

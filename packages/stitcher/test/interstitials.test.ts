@@ -43,15 +43,21 @@ describe("getAssets", () => {
     session.interstitials = [
       {
         dateTime,
-        assets: [
+        chunks: [
           {
-            url: "https://mock.com/interstitial1/master.m3u8",
-            kind: "ad",
+            type: "asset",
+            data: {
+              url: "https://mock.com/interstitial1/master.m3u8",
+              kind: "ad",
+            },
+          },
+          {
+            type: "vast",
+            data: {
+              url: "https://mock.com/vast.xml",
+            },
           },
         ],
-        vast: {
-          url: "https://mock.com/vast.xml",
-        },
       },
     ];
 

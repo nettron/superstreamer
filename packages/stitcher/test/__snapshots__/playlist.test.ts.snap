@@ -95,6 +95,15 @@ exports[`rewriteMediaPlaylistUrls should rewrite absolute segments 1`] = `
 exports[`mapAdBreaksToSessionInterstitials should handle time based with vastUrl 1`] = `
 [
   {
+    "chunks": [
+      {
+        "data": {
+          "data": undefined,
+          "url": "http://mock.com/vast_1.xml",
+        },
+        "type": "vast",
+      },
+    ],
     "dateTime": DateTime {
       "_zone": SystemZone {},
       "c": {
@@ -132,12 +141,17 @@ exports[`mapAdBreaksToSessionInterstitials should handle time based with vastUrl
       "ts": 1619950325250,
       "weekData": null,
     },
-    "vast": {
-      "data": undefined,
-      "url": "http://mock.com/vast_1.xml",
-    },
   },
   {
+    "chunks": [
+      {
+        "data": {
+          "data": undefined,
+          "url": "http://mock.com/vast_2.xml",
+        },
+        "type": "vast",
+      },
+    ],
     "dateTime": DateTime {
       "_zone": SystemZone {},
       "c": {
@@ -175,12 +189,17 @@ exports[`mapAdBreaksToSessionInterstitials should handle time based with vastUrl
       "ts": 1619950340250,
       "weekData": null,
     },
-    "vast": {
-      "data": undefined,
-      "url": "http://mock.com/vast_2.xml",
-    },
   },
   {
+    "chunks": [
+      {
+        "data": {
+          "data": undefined,
+          "url": "http://mock.com/vast_3.xml",
+        },
+        "type": "vast",
+      },
+    ],
     "dateTime": DateTime {
       "_zone": SystemZone {},
       "c": {
@@ -218,10 +237,6 @@ exports[`mapAdBreaksToSessionInterstitials should handle time based with vastUrl
       "ts": 1619950350250,
       "weekData": null,
     },
-    "vast": {
-      "data": undefined,
-      "url": "http://mock.com/vast_3.xml",
-    },
   },
 ]
 `;
@@ -229,6 +244,15 @@ exports[`mapAdBreaksToSessionInterstitials should handle time based with vastUrl
 exports[`mapAdBreaksToSessionInterstitials should handle vastData 1`] = `
 [
   {
+    "chunks": [
+      {
+        "data": {
+          "data": "<CDATA>mocked VAST data</CDATA>",
+          "url": undefined,
+        },
+        "type": "vast",
+      },
+    ],
     "dateTime": DateTime {
       "_zone": SystemZone {},
       "c": {
@@ -265,10 +289,6 @@ exports[`mapAdBreaksToSessionInterstitials should handle vastData 1`] = `
       "o": -0,
       "ts": 1619950335250,
       "weekData": null,
-    },
-    "vast": {
-      "data": "<CDATA>mocked VAST data</CDATA>",
-      "url": undefined,
     },
   },
 ]

@@ -1,15 +1,10 @@
 import { Button, Input } from "@nextui-org/react";
 import cn from "clsx";
-import { forwardRef, useImperativeHandle } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import type { InputProps } from "@nextui-org/input";
-import type { ForwardedRef } from "react";
 import type { Control } from "react-hook-form";
-
-export interface FormRef {
-  setValue(key: string, value: string | number): void;
-}
 
 interface FormProps<T extends FieldRecord> {
   className?: string;
@@ -28,20 +23,29 @@ type FieldMap<T extends FieldRecord = FieldRecord> = {
   [K in keyof T]: T[K] extends { value: infer V } ? V : never;
 };
 
-function FormComponent<T extends FieldRecord>(
-  { className, fields, onSubmit, submit }: FormProps<T>,
-  ref: ForwardedRef<FormRef>,
-) {
+export function Form<T extends FieldRecord>({
+  className,
+  fields,
+  onSubmit,
+  submit,
+}: FormProps<T>) {
   const entries = Object.entries(fields);
 
-  const { handleSubmit, setValue, control } = useForm<FieldMap>({
+  const { handleSubmit, setValue, control, getValues } = useForm<FieldMap>({
     defaultValues: entries.reduce<FieldMap>((acc, [key, field]) => {
       acc[key] = field.value;
       return acc;
     }, {}),
   });
 
-  useImperativeHandle(ref, () => ({ setValue }), [setValue]);
+  useEffect(() => {
+    const currentValues = getValues();
+    Object.entries(fields).forEach(([name, field]) => {
+      if (currentValues[name] !== field.value) {
+        setValue(name, field.value);
+      }
+    });
+  }, [fields]);
 
   return (
     <form
@@ -77,10 +81,6 @@ function FormComponent<T extends FieldRecord>(
     </form>
   );
 }
-
-export const Form = forwardRef(FormComponent) as <T extends FieldRecord>(
-  props: FormProps<T> & { ref?: ForwardedRef<FormRef> },
-) => ReturnType<typeof FormComponent>;
 
 export function FormInput({
   name,
