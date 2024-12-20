@@ -8,4 +8,7 @@ export const env = parseEnv((z) => ({
   S3_ACCESS_KEY: z.string(),
   S3_SECRET_KEY: z.string(),
   S3_BUCKET: z.string(),
+  GCS_PROJECT_ID: z.string(),
+  GCS_KEY_FILE: z.string(),
+  GCS_BUCKET_NAME: z.string(),
 }));
